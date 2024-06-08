@@ -1,0 +1,61 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+function App() {
+  const [topProducts, setTopProducts] = useState([]);
+  const [topN, setTopN] = useState(10);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchTopProducts = async () => {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const response = await axios.get(`/top-products/${topN}`);
+        setTopProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setError('An error occurred while fetching products. Please try again later.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchTopProducts();
+  }, [topN]);
+
+  const handleTopNChange = (event) => {
+    setTopN(parseInt(event.target.value));
+  };
+
+  const ProductListing = () => {
+    return (
+      <ul className="product-list">
+        {products.map((product) => (
+          <li key={product.id} className="product-item">
+            <p>{product.name}</p>
+            <p>Company: {product.company}</p>
+            {/* ... (display other product details) */}
+          </li>
+        ))}
+      </ul>
+    );
+  };
+
+  return (
+    <div className="App">
+      <h1>Top N Products</h1>
+      <div className="top-n-select">
+        <label htmlFor="topN">Top N:</label>
+        <input type="number" id="topN" value={topN} onChange={handleTopNChange} />
+      </div>
+      {isLoading && <p>Loading products...</p>}
+      {error && <p className="error-message">{error}</p>}
+      {topProducts.length > 0 && <ProductListing products={topProducts} />}
+    </div>
+  );
+}
+
+export default App;
