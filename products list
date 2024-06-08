@@ -1,0 +1,49 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const ProductList = ({ baseUrl, company, category, topN, minPrice, maxPrice }) => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(
+          `${baseUrl}/test/companies/${company}/categories/${category}/products?top=${topN}&minPrice=${minPrice}&maxPrice=${maxPrice}`
+        );
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        setError('An error occurred while fetching products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [baseUrl, company, category, topN, minPrice, maxPrice]); 
+
+  if (loading) {
+    return <div>Loading products...</div>;
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>; 
+  }
+
+  return (
+    <div>
+      <h1>Product List</h1>
+      <ul>
+        {products.map((product) => (
+          <li key={product.id}>
+            {product.name} - ${product.price}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default ProductList;
