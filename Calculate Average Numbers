@@ -1,0 +1,60 @@
+import React, { useState, useEffect } from 'react';
+
+function App() {
+  const [numbers, setNumbers] = useState([]);
+  const [average, setAverage] = useState(0);
+  const [windowSize, setWindowSize] = useState(5);
+
+  useEffect(() => {
+    const fetchNumbers = async () => {
+
+      const response = await fetch('http://20.244.56.144/test/primes');
+      const data = await response.json();
+      setNumbers(data.slice(0, windowSize)); 
+    };
+
+    fetchNumbers();
+  }, [windowSize]);
+
+  const handleFetchNumbers = async () => {
+    const newNumbers = await fetchNumbers();
+    setNumbers(newNumbers.slice(0, windowSize)); 
+  };
+
+  const calculateAverage = () => {
+    const sum = numbers.reduce((acc, num) => acc + num, 0);
+    const newAverage = sum / numbers.length;
+    setAverage(newAverage.toFixed(2));
+  };
+
+  return (
+    <div className="App">
+      <h1>Average Calculator</h1>
+      <div>
+        <h2>Numbers:</h2>
+        <ul>
+          {numbers.map((number) => (
+            <li key={number}>{number}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <h2>Average:</h2>
+        <p>{average}</p>
+      </div>
+      <div>
+        <label htmlFor="windowSize">Window Size:</label>
+        <input
+          type="number"
+          id="windowSize"
+          value={windowSize}
+          onChange={(e) => setWindowSize(parseInt(e.target.value))}
+        />
+      </div>
+      <button onClick={handleFetchNumbers}>Fetch Numbers</button>
+      <button onClick={calculateAverage}>Calculate Average</button>
+    </div>
+  );
+}
+
+export default App;
